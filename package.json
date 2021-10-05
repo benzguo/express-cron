@@ -1,0 +1,10 @@
+{
+  "name": "express-cron",
+  "version": "1.0.0",
+  "main": "index.js",
+  "author": "Ben Guo <benzguo@gmail.com>",
+  "dependencies": {
+    "dotenv": "^8.2.0",
+    "stripe": "^8.89.0"
+  }
+}
