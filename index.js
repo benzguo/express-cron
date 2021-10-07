@@ -5,9 +5,8 @@ const DRYRUN_ROCKET = false // don't run stripe stuff
 const DRYRUN_KAVHOLM = false // don't run stripe stuff
 const DEVRUN_KAVHOLM = false // ignore hour/day check
 
-// https://crontab.guru/#0_0-8_*_*_1-5
 const KAVHOLM_DAYS = [1, 4] // MONDAY, THURSDAY
-const KAVHOLM_HOUR = 0 
+const KAVHOLM_HOUR = 6 
 const random = (min, max) => Math.floor(Math.random() * (max - min)) + min;
 const date = new Date()
 const day = date.getDay()
@@ -42,7 +41,7 @@ const run = async () => {
       "Burma Superstar - Inner Richmond",
       "Loving Hut Vegan Restaurant - Chinatown",
     ]
-    const shouldDeliver = random(0, 2)
+    const shouldDeliver = random(0, 4)
     if (shouldDeliver === 0) {
       const index = Math.floor(Math.random() * locations.length);
       const description = `Delivery from ${locations[index]}`
@@ -86,8 +85,6 @@ const run = async () => {
 
   // KAVHOLM
   try {
-   
-
     const nights = random(1, 4)
     const properties = [
       "Cozy Closet",
@@ -140,15 +137,24 @@ const run = async () => {
       });
       console.log("services: " + servicesCharge.id)
 
-      // typically you would do this after a delay to allow for chargebacks/refunds
+      // typically you would add delays before transfer / payout to allow for chargebacks/refunds
+      const amount = base + services - fee;
       const transfer = await stripe.transfers.create({
-        amount: base + services - fee,
+        amount: amount,
         currency: 'usd',
         destination: process.env.KAVHOLM_ACCOUNT,
         description: description,
         transfer_group: transferGroup,
       });
       console.log("transfer: " + transfer.id)
+
+      const payout = await stripe.payouts.create({
+        amount: amount,
+        currency: 'usd',
+      }, {
+        stripeAccount: process.env.KAVHOLM_ACCOUNT,
+      });
+      console.log("payout: " + payout.id)
     }
     
   } catch (e) {
