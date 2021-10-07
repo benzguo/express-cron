@@ -74,6 +74,15 @@ const run = async () => {
         {description: description}
       );
       console.log("transfer: " + updatedTransfer.id)
+      const shouldRefund = random(0, 4)
+      if (shouldRefund) {
+        // https://stripe.com/docs/connect/destination-charges#issuing-refunds
+        const refund = await stripe.refunds.create({
+          charge: charge.id,
+          reverse_transfer: true,
+        });
+        console.log("refund: " + refund.id)
+      }
     }
     else {
       console.log("NO DELIVERY")
@@ -117,6 +126,7 @@ const run = async () => {
       console.log("fee: " + fee)
       const transferGroup = `${description} - ${date.toString()}`
   
+      // https://stripe.com/docs/connect/charges-transfers#on-behalf-of
       const baseCharge = await stripe.charges.create({
         amount: base,
         currency: 'usd',
@@ -148,15 +158,50 @@ const run = async () => {
       });
       console.log("transfer: " + transfer.id)
 
-      const payout = await stripe.payouts.create({
-        amount: amount,
-        currency: 'usd',
-      }, {
-        stripeAccount: process.env.KAVHOLM_ACCOUNT,
-      });
-      console.log("payout: " + payout.id)
-    }
-    
+      const shouldReverseTransfer = random(0, 3)
+      if (shouldReverseTransfer) {
+        // https://stripe.com/docs/connect/charges-transfers#reversing-transfers
+        const reversal = await stripe.transfers.createReversal(
+          transfer.id,
+          {
+            amount: amount,
+            description: `REFUND for ${description}`,
+          },
+        );
+        console.log("transfer reversal: " + reversal.id)
+      }
+      else {
+        // https://stripe.com/docs/connect/manual-payouts
+        const shouldFailPayout = random(0, 3)
+        if (shouldFailPayout) {
+          // https://stripe.com/docs/connect/testing#payouts
+          const failedPayout = await stripe.payouts.create({
+            amount: amount,
+            currency: 'usd',
+            destination: 'tok_visa_debit_us_transferFail',
+          }, {
+            stripeAccount: process.env.KAVHOLM_ACCOUNT,
+          });
+          console.log("failed payout: " + failedPayout.id)
+          const payout = await stripe.payouts.create({
+            amount: amount,
+            currency: 'usd',
+          }, {
+            stripeAccount: process.env.KAVHOLM_ACCOUNT,
+          });
+          console.log("payout: " + payout.id)
+        }
+        else {
+          const payout = await stripe.payouts.create({
+            amount: amount,
+            currency: 'usd',
+          }, {
+            stripeAccount: process.env.KAVHOLM_ACCOUNT,
+          });
+          console.log("payout: " + payout.id)
+        }
+      }
+    }  
   } catch (e) {
     console.error(e);
   }
