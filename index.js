@@ -104,7 +104,7 @@ const run = async () => {
     const prices = [
       5000,
       6000,
-      15000,
+      9000,
       7000
     ]
 
