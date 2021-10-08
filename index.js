@@ -5,7 +5,7 @@ const DRYRUN_ROCKET = false // don't run stripe stuff
 const DRYRUN_KAVHOLM = false // don't run stripe stuff
 const DEVRUN_KAVHOLM = false // ignore hour/day check
 
-const KAVHOLM_DAYS = [1, 4] // MONDAY, THURSDAY
+const KAVHOLM_DAYS = [1, 3, 6] // MON, WED, SAT
 const KAVHOLM_HOUR = 6 
 const random = (min, max) => Math.floor(Math.random() * (max - min)) + min;
 const date = new Date()
@@ -75,7 +75,7 @@ const run = async () => {
       );
       console.log("transfer: " + updatedTransfer.id)
       const shouldRefund = random(0, 4)
-      if (shouldRefund) {
+      if (shouldRefund === 0) {
         // https://stripe.com/docs/connect/destination-charges#issuing-refunds
         const refund = await stripe.refunds.create({
           charge: charge.id,
@@ -159,7 +159,7 @@ const run = async () => {
       console.log("transfer: " + transfer.id)
 
       const shouldReverseTransfer = random(0, 3)
-      if (shouldReverseTransfer) {
+      if (shouldReverseTransfer === 0) {
         // https://stripe.com/docs/connect/charges-transfers#reversing-transfers
         const reversal = await stripe.transfers.createReversal(
           transfer.id,
@@ -173,7 +173,7 @@ const run = async () => {
       else {
         // https://stripe.com/docs/connect/manual-payouts
         const shouldFailPayout = random(0, 3)
-        if (shouldFailPayout) {
+        if (shouldFailPayout === 0) {
           // https://stripe.com/docs/connect/testing#payouts
           const failedPayout = await stripe.payouts.create({
             amount: amount,
