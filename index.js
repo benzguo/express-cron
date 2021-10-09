@@ -46,7 +46,7 @@ const run = async () => {
       const index = Math.floor(Math.random() * locations.length);
       const description = `Delivery from ${locations[index]}`
       console.log(description)
-      const base = random(500, 3001)
+      const base = random(200, 1201)
       const tip = base * (random(0,11)/10.0)
       const amount = Math.floor(base + tip)
       const fee = Math.floor(base*0.1)
@@ -80,6 +80,7 @@ const run = async () => {
         const refund = await stripe.refunds.create({
           charge: charge.id,
           reverse_transfer: true,
+          refund_application_fee: true,
         });
         console.log("refund: " + refund.id)
       }
@@ -102,10 +103,10 @@ const run = async () => {
       "Attractive Attic",
     ]
     const prices = [
-      5000,
-      6000,
-      9000,
-      7000
+      2000,
+      3000,
+      4000,
+      3500
     ]
 
     if (DRYRUN_KAVHOLM) {
