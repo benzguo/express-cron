@@ -74,7 +74,7 @@ const run = async () => {
         {description: description}
       );
       console.log("transfer: " + updatedTransfer.id)
-      const shouldRefund = random(0, 4)
+      const shouldRefund = random(0, 10)
       if (shouldRefund === 0) {
         // https://stripe.com/docs/connect/destination-charges#issuing-refunds
         const refund = await stripe.refunds.create({
@@ -159,7 +159,7 @@ const run = async () => {
       });
       console.log("transfer: " + transfer.id)
 
-      const shouldReverseTransfer = random(0, 3)
+      const shouldReverseTransfer = random(0, 4)
       if (shouldReverseTransfer === 0) {
         // https://stripe.com/docs/connect/charges-transfers#reversing-transfers
         const reversal = await stripe.transfers.createReversal(
