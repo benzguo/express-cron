@@ -6,7 +6,7 @@ const DRYRUN_KAVHOLM = false // don't run stripe stuff
 const DEVRUN_KAVHOLM = false // ignore hour/day check
 
 const KAVHOLM_DAYS = [1,2,3,4,5] // M-F
-const KAVHOLM_HOUR = 6 
+const KAVHOLM_HOUR = 20
 const random = (min, max) => Math.floor(Math.random() * (max - min)) + min;
 const date = new Date()
 const day = date.getDay()
