@@ -13,7 +13,7 @@ const day = date.getDay()
 const hour = date.getHours()
 console.log("DAY: " + day)
 console.log("HOUR: " + hour)
-const RUN_KAVHOLM = (hour == KAVHOLM_HOUR && KAVHOLM_DAYS.includes(day));
+const RUN_KAVHOLM = ((hour % 3 == 0) && KAVHOLM_DAYS.includes(day));
 console.log("RUN_KAVHOLM: " + RUN_KAVHOLM)
 
 const run = async () => {
@@ -67,13 +67,17 @@ const run = async () => {
           destination: process.env.ROCKET_ACCOUNT,
         },
       });
-      const transfer = charge.transfer
+      const transferId = charge.transfer
       console.log("charge: " + charge.id)
-      const updatedTransfer = await stripe.transfers.update(
-        transfer,
-        {description: description}
+      const transfer = await stripe.transfers.retrieve(transferId);
+      const paymentId = transfer.destination_payment;
+      console.log('updating charge');
+      const payment = await stripe.charges.update(
+        paymentId,
+        { description: description },
+        { stripe_account: accountId },
       );
-      console.log("transfer: " + updatedTransfer.id)
+      console.log("destination_payment: " + payment.id)
       const shouldRefund = random(0, 10)
       if (shouldRefund === 0) {
         // https://stripe.com/docs/connect/destination-charges#issuing-refunds
@@ -103,10 +107,10 @@ const run = async () => {
       "Attractive Attic",
     ]
     const prices = [
+      1000,
       2000,
       3000,
-      4000,
-      3500
+      4500
     ]
 
     if (DRYRUN_KAVHOLM) {
@@ -158,6 +162,15 @@ const run = async () => {
         transfer_group: transferGroup,
       });
       console.log("transfer: " + transfer.id)
+
+      const paymentId = transfer.destination_payment;
+      console.log('updating charge');
+      const payment = await stripe.charges.update(
+        paymentId,
+        { description: description },
+        { stripe_account: accountId },
+      );
+      console.log("destination_payment: " + payment.id)
 
       const shouldReverseTransfer = random(0, 4)
       if (shouldReverseTransfer === 0) {
